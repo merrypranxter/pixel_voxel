@@ -1,0 +1,91 @@
+id: pxv.pipeline.sdf_voxel_render.v1
+type: pipeline
+name: SDF Voxel Raymarch → Pixel-Art Shader Render
+aliases: [voxel raymarch pipeline, SDF pixel render, voxel shader pipeline]
+summary: "Render a voxel scene via SDF ray marching in a shader, then apply pixel-art post-processing (quantize + dither + palette + outline)."
+description: |
+  An all-GPU pipeline suitable for Shadertoy, WebGL/WebGPU shader art, and GLSL art.
+  The voxel scene is represented entirely in the shader (procedural SDF or uploaded
+  voxel data buffer) and rendered via ray marching. The output is then passed through
+  the pixel-art post-processing chain.
+
+  This pipeline is the core "shader art voxel" workflow — create in code, output looks
+  like stylized pixel art.
+
+  Suitable for:
+  - Shadertoy / GLSL art demos
+  - WebGL/WebGPU generative pieces
+  - Three.js custom ShaderMaterial passes
+  - Real-time voxel game prototype shaders
+
+  The scene definition can be:
+    a) Procedural (noise-based voxel functions, e.g. Perlin SDF → voxelize → march)
+    b) Data-driven (pass voxel grid as 3D texture or buffer)
+    c) Hybrid (procedural macro + authored detail voxels)
+tags:
+  medium: [voxel, hybrid]
+  voxel_tech: [raymarch, SDF, DDA]
+  shader_ops: [pixelate, dither, palette_map, outline, fake_ao]
+  era: [contemporary]
+inputs:
+  - kind: voxel_grid
+    description: "Voxel data as 3D texture, SSBO, or procedural SDF function in shader."
+steps:
+  - use: pxv.technique.voxel_sdf_raymarch.v1
+    with:
+      use_dda: true
+      max_steps: 128
+      ao_samples: 6
+    notes: "Raymarch the voxel volume. Compute surface normal, AO, and base color."
+  - use: pxv.shader.pixelate_grid_lock.v1
+    with:
+      virtual_width: 256
+      virtual_height: 144
+    notes: "Quantize output to pixel grid before any 2D post-process."
+  - use: pxv.shader.ordered_dither.v1
+    with:
+      threshold_matrix: bayer_4x4
+      spread: 0.15
+    notes: "Dither before palette snap to simulate more tones."
+  - use: pxv.shader.palette_map_nearest.v1
+    with:
+      distance_metric: yuv
+    notes: "Palette snap."
+  - use: pxv.shader.outline_sobel.v1
+    with:
+      detection_mode: depth_normal
+      width: 1
+    notes: "Hard 1px outline."
+outputs:
+  - kind: image
+    description: "Pixel-art-styled voxel render at virtual resolution."
+parameters:
+  - name: palette_id
+    type: string
+    default: "pxv.palette.endesga_32.v1"
+  - name: scene_type
+    type: enum
+    options: [procedural_sdf, voxel_texture, hybrid]
+    default: procedural_sdf
+  - name: virtual_resolution
+    type: string
+    default: "256x144"
+constraints:
+  do:
+    - "Ensure voxel DDA traversal exits early on scene bounds to keep performance budget."
+    - "Pass AO result as a multiplier to the base color before palette mapping."
+  avoid:
+    - "Using smooth SDF marching (sphere tracing) for voxel grids — use DDA instead."
+compat:
+  works_with:
+    - pxv.style.isometric_voxel.v1
+    - pxv.palette.endesga_32.v1
+    - pxv.technique.voxel_sdf_raymarch.v1
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: url
+      value: "https://www.shadertoy.com"
+version: 1
+created_at: "2026-04-10"

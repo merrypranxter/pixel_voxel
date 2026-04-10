@@ -1,0 +1,59 @@
+id: pxv.style.ditherpunk.v1
+type: style
+name: Ditherpunk
+aliases: [dither-punk, ditherpunk, hi-contrast dither]
+summary: "High-contrast pixel aesthetic where dithering is the dominant texture and tone-delivery mechanism."
+description: |
+  Ditherpunk reclaims dithering not as a hardware compromise but as an expressive tool.
+  Strongly influenced by 1-bit Game Boy and early Macintosh graphics, modern ditherpunk
+  uses ordered Bayer dithering or blue-noise to render full tonal range with minimal
+  color counts (often 2–4 colors). The resulting texture is intentionally coarse, gritty,
+  and pattern-forward. Shadows and highlights become rhythmic grids of pixels rather than
+  smooth gradients.
+
+  Artists: Arne Niklas Jansson (pixeljoint), various demoscene artists.
+tags:
+  medium: [pixel]
+  era: [8bit, modern_retro]
+  lighting: [flat, ramp]
+  palette: [limited, monochrome, gameboy]
+  texture: [dithering]
+  mood: [brutal, nostalgic, surreal]
+  subject: [character, environment, abstract]
+constraints:
+  do:
+    - "Prefer 2–6 ramp steps per material; fill transitions with Bayer or blue-noise dither."
+    - "Use ordered dithering for tonal gradients, cluster or blue-noise for organic texture."
+    - "Let the dither pattern show at intended display size — don't blur it away."
+  avoid:
+    - "Full smooth gradients without texture."
+    - "Anti-aliased edges that destroy the pixel grid."
+parameters:
+  - name: dither_method
+    type: enum
+    options: [bayer_2x2, bayer_4x4, bayer_8x8, blue_noise, cluster]
+    default: bayer_4x4
+  - name: palette_size
+    type: int
+    default: 4
+    range: [2, 16]
+compat:
+  works_with:
+    - pxv.technique.bayer_4x4.v1
+    - pxv.palette.gameboy_dmg_4.v1
+    - pxv.shader.ordered_dither.v1
+  not_ideal_with:
+    - pxv.style.pixel_16bit.v1
+outputs:
+  - kind: prompt_fragment
+    value: "ditherpunk pixel art, 1-bit palette, Bayer dithering texture, high contrast, gritty pixel grid"
+  - kind: shader_hint
+    value: "Quantize luminance, then compare against Bayer matrix threshold to assign one of N palette entries"
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: url
+      value: "https://pixeljoint.com"
+version: 1
+created_at: "2026-04-10"

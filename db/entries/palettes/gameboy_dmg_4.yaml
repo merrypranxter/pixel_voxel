@@ -1,0 +1,55 @@
+id: pxv.palette.gameboy_dmg_4.v1
+type: palette
+name: Game Boy DMG 4-Shade (Green LCD)
+aliases: [dmg palette, gameboy green, gb4, 4-color green]
+summary: "The 4 iconic green-tinted shades of the original Game Boy DMG-001 LCD screen."
+description: |
+  The original Game Boy (DMG-001) displayed 4 shades on a reflective green-tinted LCD.
+  These are not pure grays — they have a warm green tinge from the LCD filter.
+  The palette has become iconic and is used in modern "gameboy demake" aesthetics.
+
+  Shade names (unofficial, but commonly used):
+  1. "White"   — lightest, the LCD background when all pixels off
+  2. "Light"   — first level, subtle green-gray
+  3. "Dark"    — second level, darker green
+  4. "Black"   — darkest, deepest green
+
+  Note: The exact hex values vary slightly by individual unit's LCD and age.
+  These are widely-accepted standard approximations.
+tags:
+  medium: [pixel]
+  palette: [gameboy, monochrome, limited]
+  era: [8bit]
+  mood: [nostalgic, cozy]
+colors:
+  - { name: white,  hex: "#9bbc0f", role: highlight }
+  - { name: light,  hex: "#8bac0f", role: midtone }
+  - { name: dark,   hex: "#306230", role: midtone }
+  - { name: black,  hex: "#0f380f", role: shadow }
+compat:
+  works_with:
+    - pxv.style.gameboy_dmg.v1
+    - pxv.style.ditherpunk.v1
+    - pxv.technique.bayer_4x4.v1
+outputs:
+  - kind: prompt_fragment
+    value: "Game Boy DMG 4-color green LCD palette, monochrome green pixel art, retro handheld aesthetic"
+  - kind: code_snippet
+    value: |
+      const DMG_PALETTE = [
+        '#9bbc0f', // white
+        '#8bac0f', // light
+        '#306230', // dark
+        '#0f380f', // black
+      ];
+    language: js
+  - kind: url
+    value: "https://lospec.com/palette-list/gb"
+provenance:
+  sources:
+    - kind: url
+      value: "https://lospec.com/palette-list/gb"
+    - kind: note
+      value: "Nintendo Game Boy DMG-001 (1989)"
+version: 1
+created_at: "2026-04-10"

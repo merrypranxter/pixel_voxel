@@ -1,0 +1,77 @@
+id: pxv.pipeline.ai_to_pixel_shader.v1
+type: pipeline
+name: AI Image → Pixel-Locked Shader Render
+aliases: [ai pixel pipeline, ai to pixel, image to pixel post]
+summary: "Take any AI-generated (or photographic) image and enforce pixel art aesthetics via a shader post-processing chain."
+description: |
+  This pipeline transforms a high-resolution AI-generated image (or any photograph/render)
+  into a pixel-art-styled output using a sequence of GPU shader passes. The output looks
+  like it could have been hand-crafted pixel art while preserving the composition and
+  content of the source image.
+
+  The pipeline enforces:
+  1. A stable pixel grid (no sub-pixel blends).
+  2. A fixed, curated color palette.
+  3. Ordered dithering for smooth tonal transitions.
+  4. A 1px hard outline around major edges.
+
+  Result: any source image in → stylized pixel art out.
+  Useful for: AI art experiments, generative art pipelines, shader art demos.
+tags:
+  medium: [pixel, hybrid]
+  shader_ops: [pixelate, dither, palette_map, outline]
+  era: [modern_retro, contemporary]
+inputs:
+  - kind: image
+    description: "Source image — AI-generated, photograph, or 3D render. Any resolution."
+steps:
+  - use: pxv.shader.pixelate_grid_lock.v1
+    with:
+      virtual_width: 320
+      virtual_height: 180
+    notes: "Lock to target pixel resolution first."
+  - use: pxv.shader.ordered_dither.v1
+    with:
+      threshold_matrix: bayer_4x4
+      spread: 0.2
+    notes: "Add dither noise before palette snap to preserve tone gradients."
+  - use: pxv.shader.palette_map_nearest.v1
+    with:
+      distance_metric: yuv
+    notes: "Snap to chosen palette. Pass chosen palette as uniform."
+  - use: pxv.shader.outline_sobel.v1
+    with:
+      detection_mode: color
+      threshold: 0.12
+    notes: "Add 1px outlines on palette-mapped buffer."
+outputs:
+  - kind: image
+    description: "Pixel-art-styled image at virtual resolution, upscaled nearest-neighbor."
+parameters:
+  - name: palette_id
+    type: string
+    default: "pxv.palette.endesga_32.v1"
+    description: "Target palette entry ID."
+  - name: virtual_width
+    type: int
+    default: 320
+  - name: virtual_height
+    type: int
+    default: 180
+constraints:
+  do:
+    - "Always grid-lock before dithering or palette mapping."
+    - "Choose a palette that matches the mood of the source image."
+  avoid:
+    - "Running palette mapping before dithering — step order matters."
+compat:
+  works_with:
+    - pxv.palette.endesga_32.v1
+    - pxv.palette.apollo.v1
+    - pxv.palette.gameboy_dmg_4.v1
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+version: 1
+created_at: "2026-04-10"

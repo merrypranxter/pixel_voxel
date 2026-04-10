@@ -1,0 +1,57 @@
+id: pxv.style.isometric_voxel.v1
+type: style
+name: Isometric Voxel Diorama
+aliases: [iso voxel, voxel iso, voxel diorama, magicavoxel iso]
+summary: "Voxel scenes rendered in a clean dimetric/isometric projection as small self-contained dioramas."
+description: |
+  Popularized by MagicaVoxel and tools like Goxel, this style presents a voxel scene from
+  a fixed oblique camera (commonly 2:1 dimetric, sometimes true iso 30°). The art emphasizes
+  readability from the isometric angle: clear silhouettes, strong AO on ground contact,
+  and carefully chosen palette. Scenes are typically small "dioramas" — contained worlds
+  on a floating platform. Lighting is often baked AO + fake top-light with no shadows,
+  or a single directional light. MagicaVoxel's .vox format (256³ voxel grid) is the
+  dominant authoring format.
+tags:
+  medium: [voxel]
+  camera: [iso_2_1, dimetric]
+  lighting: [flat, toon, ramp]
+  surface: [faceted, chunky]
+  palette: [limited, extended]
+  mood: [cozy, playful, dreamy]
+  subject: [environment, architecture, landscape]
+  voxel_tech: [naive_meshing, greedy_meshing]
+constraints:
+  do:
+    - "Design for the 2:1 dimetric viewing angle — ensure all key detail is readable from that direction."
+    - "Use ambient occlusion at voxel corners/crevices to define depth."
+    - "Float the scene on a visible platform for natural framing."
+  avoid:
+    - "Fine surface detail smaller than 1–2 voxels that disappears in the projection."
+    - "Symmetric scenes that look identical from front and side (loses iso charm)."
+parameters:
+  - name: voxel_size
+    type: int
+    default: 32
+    range: [8, 256]
+    description: "Scene grid size in voxels per axis."
+  - name: ao_strength
+    type: float
+    default: 0.6
+    range: [0.0, 1.0]
+    description: "Ambient occlusion strength at voxel contacts."
+compat:
+  works_with:
+    - pxv.palette.endesga_32.v1
+    - pxv.technique.greedy_meshing.v1
+    - pxv.shader.fake_ao.v1
+outputs:
+  - kind: prompt_fragment
+    value: "isometric voxel diorama, MagicaVoxel-style, clean dimetric projection, ambient occlusion shading, cozy floating world"
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: tool
+      value: "MagicaVoxel by @ephtracy"
+version: 1
+created_at: "2026-04-10"

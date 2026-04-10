@@ -1,0 +1,53 @@
+id: pxv.technique.blue_noise_dither.v1
+type: technique
+name: Blue-Noise Stochastic Dithering
+aliases: [blue noise dither, void-and-cluster dither, stochastic dither]
+summary: "Dithering using a blue-noise texture to scatter quantization error with perceptually optimal spatial distribution."
+description: |
+  Unlike ordered Bayer dithering (which has a regular grid pattern), blue-noise dithering
+  uses a pre-computed blue-noise texture to provide spatially uncorrelated thresholds.
+  Blue noise has high-frequency energy only: no low-frequency clumping, no regular grid
+  pattern. The result is a grain-like scatter that the human visual system perceives as
+  smoother than Bayer at the same color count, and more organic for surface textures.
+
+  Implementation: sample a 64×64 (or 128×128) tileable blue-noise texture, use the
+  texel value as the threshold (same as Bayer, but with blue-noise texture).
+
+  Void-and-cluster algorithm generates the blue-noise texture offline.
+  Pre-generated blue-noise textures are freely available (Christoph Peters, 2016).
+tags:
+  medium: [pixel, hybrid]
+  texture: [dithering, noise]
+  shader_ops: [dither]
+  mood: [surreal, brutal]
+parameters:
+  - name: noise_texture_size
+    type: int
+    default: 64
+    range: [16, 256]
+    description: "Tile size of the blue-noise lookup texture."
+  - name: intensity
+    type: float
+    default: 1.0
+    range: [0.1, 2.0]
+    description: "Scale factor applied to the noise threshold."
+compat:
+  works_with:
+    - pxv.style.ditherpunk.v1
+    - pxv.shader.ordered_dither.v1
+  not_ideal_with:
+    - pxv.style.gameboy_dmg.v1
+outputs:
+  - kind: shader_hint
+    value: "float threshold = texture(uBlueNoise, fract(fragCoord.xy / 64.0)).r; float dithered = step(threshold, luminance);"
+    language: glsl
+  - kind: url
+    value: "https://momentsingraphics.de/BlueNoise.html"
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: url
+      value: "https://momentsingraphics.de/BlueNoise.html"
+version: 1
+created_at: "2026-04-10"

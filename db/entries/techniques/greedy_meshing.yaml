@@ -1,0 +1,55 @@
+id: pxv.technique.greedy_meshing.v1
+type: technique
+name: Greedy Meshing
+aliases: [greedy mesh, face merging, quad merging]
+summary: "Voxel mesh optimization that merges coplanar, same-material adjacent voxel faces into fewer, larger quads."
+description: |
+  Naïve voxel meshing emits one quad per visible face — an N³ voxel grid can produce O(N²)
+  quads on the surface. Greedy meshing scans each axis-aligned slice, groups runs of
+  same-material voxels in one axis, then extends those strips in the perpendicular axis
+  to form maximally large rectangles. The result is a mesh with significantly fewer
+  triangles for the same visual output.
+
+  Algorithm summary (for one slice):
+    1. For each voxel face on the slice, if not already visited and visible:
+    2. Expand a rectangle as far as possible in +X while material and visibility match.
+    3. Expand the row in +Y while the entire row still matches.
+    4. Emit a single quad for the rectangle; mark all covered voxels as visited.
+    5. Repeat for remaining unvisited faces.
+
+  Performance: reduces draw calls and vertex count dramatically for uniform regions
+  (terrain, walls, floors). Less effective for highly variegated voxel art.
+tags:
+  medium: [voxel]
+  voxel_tech: [greedy_meshing]
+  era: [contemporary]
+parameters:
+  - name: merge_strategy
+    type: enum
+    options: [greedy, conservative, none]
+    default: greedy
+    description: "conservative = only merge identical palette entries; greedy = merge any same-face orientation."
+constraints:
+  do:
+    - "Apply greedy meshing per axis (X, Y, Z faces separately) to avoid cracks."
+    - "Handle the case where a merged quad spans different materials (only merge matching material)."
+  avoid:
+    - "Merging faces from different sides of a voxel boundary (normals must match)."
+compat:
+  works_with:
+    - pxv.style.isometric_voxel.v1
+    - pxv.style.blocky_voxel.v1
+    - pxv.style.hybrid_voxelsprite.v1
+outputs:
+  - kind: shader_hint
+    value: "Greedy meshing output is standard indexed triangle mesh — use triplanar UV mapping for texture coherence across merged quads."
+  - kind: url
+    value: "https://0fps.net/2012/06/30/meshing-in-a-minecraft-game/"
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: url
+      value: "https://0fps.net/2012/06/30/meshing-in-a-minecraft-game/"
+version: 1
+created_at: "2026-04-10"

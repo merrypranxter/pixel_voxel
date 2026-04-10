@@ -1,0 +1,146 @@
+# db/_schema/tagsets.yaml
+# Canonical tag axes for the pixel/voxel art database.
+# All entry `tags` fields MUST use values from these lists.
+# To propose a new tag, add it here first, then use it in entries.
+
+medium:
+  description: "Primary rendering medium / output surface."
+  values:
+    - pixel      # 2-D raster pixel art
+    - voxel      # 3-D volumetric/block-based art
+    - hybrid     # intentional mix of both (e.g. voxel rendered then pixel-filtered)
+
+camera:
+  description: "Camera / projection convention used for this piece or technique."
+  values:
+    - topdown      # pure top-down (Zelda NES style)
+    - side         # side-scrolling (Mega Man style)
+    - iso_2_1      # 2:1 pixel isometric (common pixel art iso)
+    - iso_true     # mathematically true isometric (30° projection)
+    - dimetric     # 2:1 or other non-true iso dimetric view
+    - perspective  # 3-point or 2-point perspective pixel
+    - ortho        # orthographic (voxel diorama, top-down RPG)
+    - first_person # FPS voxel or dungeon view
+
+lighting:
+  description: "Lighting model employed by this style/technique."
+  values:
+    - unlit        # flat, no shading
+    - flat         # minimal 2-tone or silhouette-only shading
+    - toon         # cel/toon with hard shadow boundary
+    - ramp         # explicit luminance ramp (pixel shading norm)
+    - PBRish       # loosely PBR-inspired (metallic, roughness, etc.)
+    - volumetric_fake  # faked volumetric fog or scattering
+    - palette_cycling  # color cycling as lighting animation
+
+surface:
+  description: "Primary surface character of the rendered material."
+  values:
+    - smooth
+    - faceted
+    - noisy
+    - chunky
+    - glossy
+    - matte
+    - emissive
+
+palette:
+  description: "Palette constraint category."
+  values:
+    - limited      # hard color count cap (≤16 colors)
+    - ramps        # built around explicit luminance ramps
+    - neon         # saturated, glowing neons
+    - earthtone    # warm browns, greens, muted natural colors
+    - monochrome   # single hue with luminance variance
+    - pastel       # low saturation, high value
+    - gameboy      # specifically 2–4 shade green/gray LCD style
+    - cga          # 4-color CGA subset
+    - extended     # larger palette (32–256 colors, lospec-style)
+
+texture:
+  description: "Surface texture approach (how the surface is filled / detailed)."
+  values:
+    - dithering    # ordered or stochastic pixel dithering
+    - stipple      # dot-based texture
+    - hatch        # line-based hatching
+    - noise        # procedural noise pattern (in pixel space)
+    - tiles        # explicit tile/stamp repetition
+    - none         # clean solid fills
+
+animation:
+  description: "Animation technique or convention."
+  values:
+    - smear        # motion-blur smear frames
+    - snappy       # punchy, minimal frames, exaggerated timing
+    - subpixel     # sub-pixel movement trick
+    - stepped      # deliberately low-fps for retro feel
+    - palette_cycle # animation via cycling palette indices
+    - turntable    # 360° rotation baked to frames
+    - looping      # perfect seamless loop
+
+voxel_tech:
+  description: "Voxel-specific construction or rendering technique."
+  values:
+    - greedy_meshing    # merges coplanar faces to reduce geometry
+    - naive_meshing     # one quad per visible face
+    - marching_cubes    # smooth isosurface extraction from voxel grid
+    - SDF               # signed distance field representation
+    - raymarch          # ray marching through voxel/SDF volume
+    - DDA               # digital differential analyzer grid traversal
+    - LOD               # level-of-detail octree or simplification
+    - sparse_voxel      # SVOs (sparse voxel octrees)
+
+shader_ops:
+  description: "Shader or image processing operations."
+  values:
+    - quantize         # reduce to N intensity levels
+    - posterize        # posterization (hard luminance bands)
+    - edge_detect      # Sobel, Laplacian, or pixel-edge detection
+    - outline          # 1–2px hard outline / border
+    - bloom            # glow/bloom (use sparingly in pixel art)
+    - crt              # CRT scanlines + mask simulation
+    - pixelate         # downscale then nearest-neighbor upscale
+    - halftone         # halftone dot pattern
+    - dither           # screen-space or UV-space dither pass
+    - palette_map      # nearest-color palette replacement
+    - triplanar        # triplanar UV mapping (for voxels)
+    - fake_ao          # screen-space or baked fake ambient occlusion
+
+mood:
+  description: "Emotional / aesthetic tone."
+  values:
+    - cozy
+    - eerie
+    - brutal
+    - dreamy
+    - playful
+    - solemn
+    - cyber
+    - surreal
+    - nostalgic
+    - tense
+
+subject:
+  description: "Primary subject matter category."
+  values:
+    - character
+    - creature
+    - environment
+    - prop
+    - UI
+    - abstract
+    - typographic
+    - landscape
+    - architecture
+    - vehicle
+
+era:
+  description: "Historical or stylistic era reference."
+  values:
+    - 8bit           # NES/Game Boy/Atari era fidelity
+    - 16bit          # SNES/Genesis era fidelity
+    - 32bit          # PS1/N64 era fidelity
+    - ps1            # specifically PS1 low-poly aesthetic
+    - modern_retro   # modern art intentionally evoking retro
+    - contemporary   # present-day pixel/voxel work, no nostalgia framing
+    - arcade         # coin-op CRT arcade aesthetic
