@@ -1,0 +1,75 @@
+id: pxv.palette.endesga_32.v1
+type: palette
+name: ENDESGA 32
+aliases: [endesga32, e32, ende32]
+summary: "32-color palette by ENDESGA — warm earthy tones with a full set of skin, nature, and material ramps."
+description: |
+  One of the most popular palettes on Lospec, designed by ENDESGA. 32 colors organized
+  into well-balanced ramps: skin tones, warm earthy browns, natural greens, cool blues,
+  grays, and accent reds/oranges. Excellent for character sprites, environments, and UI.
+  Very cohesive — mixing colors from different ramps still produces harmonious results.
+  Widely used in game jams and indie pixel art games.
+
+  Palette design principles:
+  - Hue-shifted ramps throughout (not just pure value changes).
+  - 4 skin tone shades from pale to dark.
+  - 4 nature greens from deep forest to pale leaf.
+  - 4 sky blues.
+  - 4 earth/stone grays.
+  - Warm accent reds, oranges, yellows.
+tags:
+  medium: [pixel, voxel, hybrid]
+  palette: [extended, ramps, earthtone]
+  era: [modern_retro, contemporary]
+  mood: [cozy, playful, nostalgic]
+colors:
+  - { name: black,        hex: "#1a1c2c", role: shadow }
+  - { name: dark_purple,  hex: "#5d275d", role: shadow }
+  - { name: deep_red,     hex: "#b13e53", role: accent }
+  - { name: orange_red,   hex: "#ef7d57", role: accent }
+  - { name: warm_yellow,  hex: "#ffcd75", role: highlight }
+  - { name: pale_yellow,  hex: "#a7f070", role: accent }
+  - { name: light_green,  hex: "#38b764", role: midtone }
+  - { name: dark_green,   hex: "#257179", role: midtone }
+  - { name: dark_blue,    hex: "#29366f", role: shadow }
+  - { name: mid_blue,     hex: "#3b5dc9", role: midtone }
+  - { name: bright_blue,  hex: "#41a6f6", role: highlight }
+  - { name: sky_blue,     hex: "#73eff7", role: highlight }
+  - { name: white,        hex: "#f4f4f4", role: highlight }
+  - { name: light_gray,   hex: "#94b0c2", role: midtone }
+  - { name: mid_gray,     hex: "#566c86", role: midtone }
+  - { name: dark_gray,    hex: "#333c57", role: shadow }
+  - { name: darkest,      hex: "#1a1c2c", role: shadow }
+  - { name: dark_skin,    hex: "#5d2f0f", role: shadow }
+  - { name: mid_skin,     hex: "#a35324", role: midtone }
+  - { name: light_skin,   hex: "#e07850", role: midtone }
+  - { name: pale_skin,    hex: "#f4b379", role: highlight }
+  - { name: pale_nude,    hex: "#fde89f", role: highlight }
+  - { name: forest_dark,  hex: "#1a3d2b", role: shadow }
+  - { name: forest_mid,   hex: "#2e6e32", role: midtone }
+  - { name: grass,        hex: "#5aab43", role: midtone }
+  - { name: lime,         hex: "#8dc23e", role: highlight }
+  - { name: brown_dark,   hex: "#3e2a0e", role: shadow }
+  - { name: brown_mid,    hex: "#7a4a1e", role: midtone }
+  - { name: tan,          hex: "#c48139", role: midtone }
+  - { name: sand,         hex: "#e8c172", role: highlight }
+  - { name: stone_dark,   hex: "#2d2d2d", role: shadow }
+  - { name: stone_light,  hex: "#7d7d7d", role: midtone }
+compat:
+  works_with:
+    - pxv.style.pixel_16bit.v1
+    - pxv.technique.palette_ramp_hueshift.v1
+    - pxv.style.isometric_voxel.v1
+outputs:
+  - kind: prompt_fragment
+    value: "ENDESGA-32 color palette, warm earthy pixel art tones, 32-color limited palette"
+  - kind: url
+    value: "https://lospec.com/palette-list/endesga-32"
+provenance:
+  sources:
+    - kind: url
+      value: "https://lospec.com/palette-list/endesga-32"
+    - kind: artist
+      value: "ENDESGA on Lospec"
+version: 1
+created_at: "2026-04-10"

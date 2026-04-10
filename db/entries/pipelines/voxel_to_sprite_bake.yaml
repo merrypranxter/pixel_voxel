@@ -1,0 +1,87 @@
+id: pxv.pipeline.voxel_to_sprite_bake.v1
+type: pipeline
+name: Voxel Model → Pixel Sprite Sheet Bake
+aliases: [voxel bake, voxel to sprite, vox2sprite, voxel sprite pipeline]
+summary: "Bake a 3D voxel model to a 2D pixel sprite sheet (multi-angle) using an offline render + post-processing pipeline."
+description: |
+  This pipeline converts a MagicaVoxel .vox model (or any voxel scene) into a usable
+  2D pixel sprite sheet with multiple frames (angles, animations) by:
+  1. Rendering the voxel model at high resolution with baked AO + directional lighting.
+  2. Downscaling with nearest-neighbor to target sprite size.
+  3. Palette-mapping to the project palette.
+  4. Optionally adding a 1px hard outline.
+  5. Packing frames into a sprite sheet.
+
+  This is the core hybrid pipeline: author in 3D voxel tools → deliver as 2D pixel assets.
+  Works for: character sprites, prop sprites, environment elements, rotating objects.
+
+  Tools commonly used: MagicaVoxel (authoring), voxel renderers (Qubicle, ephtracy vox
+  renderer, or custom Three.js/WebGL renderer), Aseprite (sprite sheet packing + touch-up).
+tags:
+  medium: [voxel, hybrid]
+  voxel_tech: [greedy_meshing, raymarch, DDA]
+  shader_ops: [pixelate, palette_map, outline, fake_ao]
+  era: [contemporary]
+inputs:
+  - kind: voxel_grid
+    description: "MagicaVoxel .vox file or equivalent voxel scene. Max 256³ grid recommended."
+  - kind: palette
+    description: "Target pixel palette for final output."
+steps:
+  - use: pxv.technique.greedy_meshing.v1
+    notes: "Mesh the voxel scene for efficient rendering."
+  - use: pxv.technique.voxel_sdf_raymarch.v1
+    with:
+      use_dda: true
+      ao_samples: 8
+    notes: "Render at 4× target resolution with DDA traversal and baked AO."
+  - use: pxv.shader.pixelate_grid_lock.v1
+    notes: "Downscale with nearest-neighbor to target sprite resolution."
+  - use: pxv.shader.palette_map_nearest.v1
+    with:
+      distance_metric: yuv
+    notes: "Palette snap to project palette."
+  - use: pxv.shader.outline_sobel.v1
+    with:
+      detection_mode: depth_normal
+      width: 1
+    notes: "Optional: add 1px hard outline."
+outputs:
+  - kind: image
+    description: "Sprite sheet PNG at target resolution, with alpha channel for transparency."
+parameters:
+  - name: angles
+    type: int
+    default: 8
+    range: [1, 16]
+    description: "Number of rotation angles to bake (e.g. 8 = every 45°)."
+  - name: sprite_size
+    type: int
+    default: 64
+    range: [16, 256]
+    description: "Target output sprite size in pixels per frame."
+  - name: render_oversample
+    type: int
+    default: 4
+    range: [2, 8]
+    description: "Render scale multiplier before final downscale."
+  - name: include_outline
+    type: bool
+    default: true
+constraints:
+  do:
+    - "Always oversample render (4×) before nearest-neighbor downscale."
+    - "Bake AO at render time — adds critical depth cue at small sprite sizes."
+    - "Touch up final sprite in Aseprite to fix any palette noise artifacts."
+  avoid:
+    - "Using bilinear or Lanczos downscaling — always nearest-neighbor for final size."
+compat:
+  works_with:
+    - pxv.style.hybrid_voxelsprite.v1
+    - pxv.palette.endesga_32.v1
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+version: 1
+created_at: "2026-04-10"

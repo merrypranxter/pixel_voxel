@@ -1,0 +1,53 @@
+id: pxv.technique.manual_aa.v1
+type: technique
+name: Manual Anti-Aliasing (Pixel Art AA)
+aliases: [pixel AA, manual AA, selective AA, subpixel AA]
+summary: "Hand-placed intermediate color pixels at diagonal edges to reduce jagginess without blurring."
+description: |
+  Pixel art purists often reject automatic AA (which blurs the pixel grid), but certain
+  diagonal edges benefit from carefully placed intermediate color pixels — called
+  "anti-aliasing pixels" or "AA pixels". The technique places 1–2 pixels of an intermediate
+  value between a dark edge and a bright background at steep diagonals, creating the
+  illusion of a smoother curve.
+
+  Rules:
+  - Only apply on curves and steep diagonals, not on straight lines.
+  - Use 1 AA pixel per jagged step, not more.
+  - The AA pixel color is usually a mid-value between the two edge colors, not a blend
+    (stay within palette).
+  - Do NOT anti-alias straight horizontal or vertical edges.
+  - Subpixel offsets (1/3 pixel) can be simulated with careful color placement on CRT.
+
+  Anti-aliasing in shaders (for rendering pixel art): use nearest-neighbor sampling and
+  the "pixel AA" trick: clamp UV derivatives to prevent blurring at integer pixel edges.
+tags:
+  medium: [pixel]
+  texture: [none]
+  shader_ops: [quantize]
+  era: [16bit, modern_retro, contemporary]
+constraints:
+  do:
+    - "Place AA pixels only where diagonal/curve edges are jagged."
+    - "Stay within the existing color palette — don't introduce new colors just for AA."
+    - "One AA pixel per jagged step maximum."
+  avoid:
+    - "Anti-aliasing straight lines, tile edges, or intentional hard outlines."
+    - "Using bilinear filtering — this blurs the entire image, not selective AA."
+compat:
+  works_with:
+    - pxv.style.pixel_16bit.v1
+    - pxv.technique.palette_ramp_hueshift.v1
+  not_ideal_with:
+    - pxv.style.ditherpunk.v1
+    - pxv.style.gameboy_dmg.v1
+outputs:
+  - kind: shader_hint
+    value: "For upscaled pixel art rendering: use fract(uv * resolution) to compute sub-pixel blend weights; blend only at the 0.5 boundary for pixel-AA effect."
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: url
+      value: "https://saint11.org/pixel_art_articles/"
+version: 1
+created_at: "2026-04-10"

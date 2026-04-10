@@ -1,0 +1,76 @@
+id: pxv.shader.palette_map_nearest.v1
+type: shader
+name: Nearest-Color Palette Mapping
+aliases: [palette map, color quantize to palette, palette snap, palette lock]
+summary: "Shader that maps each pixel's color to the nearest entry in a fixed palette (by RGB or perceptual distance)."
+description: |
+  Palette mapping forces an arbitrary-color image into a specific limited palette by
+  replacing each pixel's color with the closest palette entry. This is the core operation
+  for "pixel art look" post-processing on 3D renders, AI images, or photographs.
+
+  Distance metrics (in order of quality):
+    1. RGB Euclidean  — fast, inaccurate for human perception
+    2. YUV / Lab     — perceptually uniform, better results
+    3. CIE76 ΔE      — standard color difference, best for palette art quality
+
+  In a real-time shader (GLSL/WGSL):
+  - Upload palette as a 1D texture or uniform array (max 256 entries).
+  - For each fragment: loop through palette, compute distance, track minimum.
+  - Output the closest palette color.
+
+  Alternatively, precompute a 3D LUT (lookup table) that maps any RGB→palette index
+  and sample the LUT per fragment — much faster for large palettes.
+tags:
+  medium: [pixel, hybrid]
+  shader_ops: [palette_map, quantize]
+  era: [modern_retro, contemporary]
+parameters:
+  - name: palette_size
+    type: int
+    default: 32
+    range: [2, 256]
+    description: "Number of colors in the target palette."
+  - name: distance_metric
+    type: enum
+    options: [rgb, yuv, lab]
+    default: yuv
+    description: "Color distance metric for nearest-color search."
+  - name: use_lut
+    type: bool
+    default: false
+    description: "If true, use precomputed 3D LUT for performance."
+constraints:
+  do:
+    - "Apply AFTER pixel grid lock to avoid sub-pixel blends polluting the palette mapping."
+    - "Prefer YUV or Lab distance for aesthetically pleasing results."
+  avoid:
+    - "Using bilinear LUT sampling — always use nearest for palette LUTs."
+compat:
+  requires:
+    - pxv.shader.pixelate_grid_lock.v1
+  works_with:
+    - pxv.shader.ordered_dither.v1
+    - pxv.shader.outline_sobel.v1
+    - pxv.palette.endesga_32.v1
+    - pxv.palette.apollo.v1
+outputs:
+  - kind: code_snippet
+    value: |
+      // GLSL: nearest-palette lookup (brute force, small palettes)
+      vec3 nearestPalette(vec3 col, sampler2D paletteTex, int paletteSize) {
+        vec3 best = vec3(0.0);
+        float bestDist = 1e9;
+        for (int i = 0; i < paletteSize; i++) {
+          vec3 p = texelFetch(paletteTex, ivec2(i, 0), 0).rgb;
+          float d = dot(col - p, col - p);
+          if (d < bestDist) { bestDist = d; best = p; }
+        }
+        return best;
+      }
+    language: glsl
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+version: 1
+created_at: "2026-04-10"

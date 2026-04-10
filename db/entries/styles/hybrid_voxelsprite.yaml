@@ -1,0 +1,57 @@
+id: pxv.style.hybrid_voxelsprite.v1
+type: style
+name: Hybrid Voxel-to-Sprite
+aliases: [voxel sprite, baked voxel sprite, 3D to pixel, voxel billboard]
+summary: "3D voxel models rendered/baked down to 2D pixel sprites, combining voxel construction with pixel display."
+description: |
+  A production pipeline that uses voxel models (MagicaVoxel, Goxel) as the authoring
+  source, then renders or rasterizes them to pixel sprite sheets. The result looks like
+  hand-crafted pixel sprites but is actually voxel geometry baked with AO + directional
+  lighting. Common in indie games wanting rich multi-angle sprites without hand-drawing
+  every frame. The pixel output may be post-processed to snap to a tighter palette and
+  add manual touch-ups.
+
+  Alternatively, pixel sprites can be mapped onto voxel "billboards" (flat voxel quads),
+  blending 2D pixel art into voxel dioramas.
+tags:
+  medium: [hybrid]
+  camera: [iso_2_1, side, ortho]
+  lighting: [ramp, toon]
+  surface: [faceted]
+  palette: [limited, extended]
+  mood: [playful, contemporary]
+  subject: [character, prop]
+  voxel_tech: [naive_meshing, greedy_meshing]
+constraints:
+  do:
+    - "Render at 2× or 4× target resolution to allow post-downscale palette snap."
+    - "Use AO baking during render — it adds depth that reads well at pixel scale."
+    - "Apply nearest-neighbor downscale, never bilinear, to preserve crisp edges."
+  avoid:
+    - "Using bilinear or Lanczos filtering for the final downscale step."
+    - "Mixing pixel-perfect scaling factors between sprites."
+parameters:
+  - name: render_scale
+    type: int
+    default: 4
+    range: [2, 8]
+    description: "Oversample multiplier for the voxel render before downscale."
+  - name: target_sprite_size
+    type: int
+    default: 64
+    range: [16, 256]
+    description: "Target output sprite size in pixels."
+compat:
+  works_with:
+    - pxv.technique.greedy_meshing.v1
+    - pxv.shader.palette_map_nearest.v1
+    - pxv.pipeline.voxel_to_sprite_bake.v1
+outputs:
+  - kind: prompt_fragment
+    value: "hybrid voxel-to-pixel sprite, baked 3D voxel rendered as 2D pixel art, isometric angle, ambient occlusion"
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+version: 1
+created_at: "2026-04-10"

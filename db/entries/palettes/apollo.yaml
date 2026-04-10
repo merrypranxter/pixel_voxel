@@ -1,0 +1,52 @@
+id: pxv.palette.apollo.v1
+type: palette
+name: Apollo (Lospec)
+aliases: [apollo palette, apollo16, apollo 16]
+summary: "16-color palette by AdamCYounis — pastel-leaning, balanced ramps, ideal for clean modern pixel art."
+description: |
+  Apollo is a tightly curated 16-color palette designed by AdamCYounis (Adam Young).
+  It features well-constructed complementary ramps that cover warm skin tones, cool blues,
+  neutral grays, and earthy greens/browns. The palette has a soft, slightly pastel
+  quality that makes it approachable and modern-feeling without being garish. Excellent
+  for character art, light RPG environments, and UI. Very popular on Lospec and in pixel
+  art game jams.
+tags:
+  medium: [pixel, voxel, hybrid]
+  palette: [limited, ramps, pastel]
+  era: [modern_retro, contemporary]
+  mood: [cozy, dreamy, playful]
+colors:
+  - { name: darkest,      hex: "#172038", role: shadow }
+  - { name: dark_navy,    hex: "#253a5e", role: shadow }
+  - { name: dark_blue,    hex: "#3c5e8b", role: midtone }
+  - { name: mid_blue,     hex: "#4f8fba", role: midtone }
+  - { name: sky_blue,     hex: "#73bed3", role: highlight }
+  - { name: pale_blue,    hex: "#a4dddb", role: highlight }
+  - { name: darkest_warm, hex: "#19332d", role: shadow }
+  - { name: dark_green,   hex: "#25562e", role: shadow }
+  - { name: mid_green,    hex: "#468232", role: midtone }
+  - { name: light_green,  hex: "#75a743", role: midtone }
+  - { name: yellow_green, hex: "#a8ca58", role: highlight }
+  - { name: pale_yellow,  hex: "#d0da91", role: highlight }
+  - { name: dark_warm,    hex: "#4d2b32", role: shadow }
+  - { name: warm_mid,     hex: "#7a4841", role: midtone }
+  - { name: warm_light,   hex: "#ad7757", role: midtone }
+  - { name: cream,        hex: "#c09473", role: highlight }
+compat:
+  works_with:
+    - pxv.style.pixel_16bit.v1
+    - pxv.style.blocky_voxel.v1
+    - pxv.technique.palette_ramp_hueshift.v1
+outputs:
+  - kind: prompt_fragment
+    value: "Apollo 16-color palette, soft pastel pixel art, clean limited palette, balanced warm and cool ramps"
+  - kind: url
+    value: "https://lospec.com/palette-list/apollo"
+provenance:
+  sources:
+    - kind: url
+      value: "https://lospec.com/palette-list/apollo"
+    - kind: artist
+      value: "AdamCYounis on Lospec"
+version: 1
+created_at: "2026-04-10"

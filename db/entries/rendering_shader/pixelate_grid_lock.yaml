@@ -1,0 +1,72 @@
+id: pxv.shader.pixelate_grid_lock.v1
+type: shader
+name: Stable Pixel Grid Lock
+aliases: [pixel lock, pixelate, pixel grid, nearest neighbor upscale]
+summary: "Shader operation that quantizes fragment UV to a fixed pixel grid — the essential first step in any pixel art render pipeline."
+description: |
+  Before applying any other pixel-art shader effect, the render must be locked to a stable
+  integer pixel grid. This prevents "pixel swimming" (individual pixels jittering as the
+  camera moves) and ensures all downstream effects operate on clean pixel-aligned data.
+
+  The operation: given a target virtual resolution (e.g. 320×180), quantize UVs so that
+  all fragments in the same virtual pixel share the same sample UV. Equivalent to rendering
+  to a low-resolution framebuffer and upscaling with nearest-neighbor filtering — but done
+  in a single pass.
+
+  Implementation options:
+  A) Render to a low-res render target (RenderTexture), then blit with nearest-neighbor.
+     Cleanest approach; recommended in Unity, Godot, Three.js.
+  B) In a full-screen shader: snap UV by flooring to virtual resolution.
+
+  Always place this operation FIRST in a pipeline before dithering or palette mapping.
+tags:
+  medium: [pixel, hybrid]
+  shader_ops: [pixelate, quantize]
+  era: [8bit, 16bit, modern_retro, contemporary]
+parameters:
+  - name: virtual_width
+    type: int
+    default: 320
+    range: [64, 1920]
+    description: "Target virtual pixel resolution width."
+  - name: virtual_height
+    type: int
+    default: 180
+    range: [36, 1080]
+    description: "Target virtual pixel resolution height."
+  - name: filter_mode
+    type: enum
+    options: [nearest, linear_to_nearest]
+    default: nearest
+    description: "nearest = hard pixels; linear_to_nearest = softened but still pixel-locked."
+constraints:
+  do:
+    - "Apply pixel grid lock as the FIRST step in any pixel art pipeline."
+    - "Use nearest-neighbor sampling for all upscaled output."
+    - "Keep the virtual resolution aspect ratio matching the display to avoid non-integer scaling."
+  avoid:
+    - "Applying dithering or palette mapping before grid locking — results will shimmer."
+    - "Linear filtering on the final upscale blit."
+compat:
+  works_with:
+    - pxv.shader.palette_map_nearest.v1
+    - pxv.shader.ordered_dither.v1
+    - pxv.shader.outline_sobel.v1
+  requires:
+    - pxv.shader.pixelate_grid_lock.v1
+outputs:
+  - kind: code_snippet
+    value: |
+      // GLSL: pixel grid lock (in full-screen pass)
+      vec2 pixelSize = 1.0 / vec2(uVirtualWidth, uVirtualHeight);
+      vec2 snappedUV = floor(vUV / pixelSize) * pixelSize + pixelSize * 0.5;
+      vec4 color = texture(uSceneTexture, snappedUV);
+    language: glsl
+  - kind: shader_hint
+    value: "In Three.js: set renderer.setSize(virtualW, virtualH) and scale canvas CSS; or use EffectComposer with a pixel pass."
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+version: 1
+created_at: "2026-04-10"

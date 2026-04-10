@@ -1,0 +1,80 @@
+id: pxv.shader.outline_sobel.v1
+type: shader
+name: Pixel-Art Outline (Sobel / Edge-Detect)
+aliases: [pixel outline, edge outline, Sobel outline, hard outline]
+summary: "Post-process outline shader that detects pixel edges by depth/normal/color discontinuity and draws a 1-pixel hard border."
+description: |
+  A pixel-art style 1px outline is a hallmark of the aesthetic. This shader detects edges
+  by sampling neighboring pixels and comparing depth, normals, or color values. Where a
+  sharp discontinuity is detected, the pixel is drawn in the outline color (usually black
+  or a dark palette entry).
+
+  Three detection methods:
+    1. Depth-only: cheap, misses internal edges between same-depth materials.
+    2. Normal-only: detects surface orientation changes; misses silhouette edges.
+    3. Color-difference: works on flat images/textures; can false-positive on textures.
+    4. Combined (depth + normal): industry standard for cartoon/stylized 3D games.
+
+  In pixel art pipelines (post-process on pixel-locked buffer):
+  - Sample the 4 or 8 neighbors (offset by 1 virtual pixel).
+  - If any neighbor differs by more than a threshold, output outline color.
+  - Apply AFTER palette mapping so outline snaps to a palette entry.
+
+  For pure pixel art (not 3D): use color-difference outline on the palette-mapped buffer.
+tags:
+  medium: [pixel, voxel, hybrid]
+  shader_ops: [outline, edge_detect]
+  era: [modern_retro, contemporary]
+parameters:
+  - name: outline_color
+    type: color
+    default: "#1a1c2c"
+    description: "Outline color (should be a palette entry)."
+  - name: detection_mode
+    type: enum
+    options: [depth, normal, color, depth_normal]
+    default: depth_normal
+  - name: threshold
+    type: float
+    default: 0.1
+    range: [0.01, 0.5]
+    description: "Edge detection sensitivity. Lower = more outlines."
+  - name: width
+    type: int
+    default: 1
+    range: [1, 3]
+    description: "Outline width in virtual pixels."
+constraints:
+  do:
+    - "Apply outline as a FINAL pass, after palette mapping."
+    - "Snap the outline color to a palette entry."
+    - "Use pixel-aligned sampling offsets (1 virtual pixel = 1 grid unit)."
+  avoid:
+    - "Using sub-pixel outline widths — defeats the pixel art aesthetic."
+    - "Very thick outlines (>2px) on small sprites."
+compat:
+  requires:
+    - pxv.shader.pixelate_grid_lock.v1
+  works_with:
+    - pxv.shader.palette_map_nearest.v1
+    - pxv.style.pixel_8bit.v1
+    - pxv.style.isometric_voxel.v1
+outputs:
+  - kind: code_snippet
+    value: |
+      // GLSL: 4-neighbor color-difference outline
+      vec2 px = 1.0 / uResolution;
+      vec3 c  = texture(uScene, vUV).rgb;
+      vec3 cU = texture(uScene, vUV + vec2(0, px.y)).rgb;
+      vec3 cD = texture(uScene, vUV - vec2(0, px.y)).rgb;
+      vec3 cL = texture(uScene, vUV - vec2(px.x, 0)).rgb;
+      vec3 cR = texture(uScene, vUV + vec2(px.x, 0)).rgb;
+      float edge = length(c - cU) + length(c - cD) + length(c - cL) + length(c - cR);
+      fragColor = edge > uThreshold ? vec4(uOutlineColor, 1.0) : vec4(c, 1.0);
+    language: glsl
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+version: 1
+created_at: "2026-04-10"

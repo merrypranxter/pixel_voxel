@@ -1,0 +1,233 @@
+# db/_schema/entry.schema.yaml
+# Universal entry schema for the pixel/voxel art database.
+# Every file under db/entries/**/*.yaml MUST conform to this schema.
+# This is a descriptive schema (human-readable spec), not a JSON Schema.
+# A strict JSON Schema / Zod validator can be generated from this later.
+
+fields:
+
+  id:
+    required: true
+    type: string
+    pattern: "pxv.<type>.<slug>.v<int>"
+    description: >
+      Globally unique entry identifier.
+      Format: pxv.<type>.<slug>.v<version>
+      Example: pxv.style.ditherpunk.v1
+    notes: "Use lowercase snake_case for slug. Increment v<n> on breaking changes."
+
+  type:
+    required: true
+    type: enum
+    values:
+      - style
+      - technique
+      - palette
+      - pipeline
+      - motif
+      - composition
+      - animation
+      - shader
+      - voxel
+      - reference
+    description: "Category / kind of this entry."
+
+  name:
+    required: true
+    type: string
+    description: "Human-readable display name."
+
+  aliases:
+    required: false
+    type: list[string]
+    description: "Alternative names, abbreviations, or community slang."
+
+  summary:
+    required: true
+    type: string
+    max_length: 200
+    description: "One-sentence description. Used in index/search results."
+
+  description:
+    required: false
+    type: string (multiline)
+    description: >
+      Long-form notes. Include: what it looks like, when to use it, historical
+      context, related artists/games, and any important caveats.
+
+  tags:
+    required: true
+    type: map[axis -> list[string]]
+    description: >
+      Structured tag object. Keys must be valid axes from db/_schema/tagsets.yaml.
+      Values are lists of valid tag values for that axis.
+    example: |
+      tags:
+        medium: [pixel]
+        era: [8bit, modern_retro]
+        mood: [nostalgic]
+
+  constraints:
+    required: false
+    type: object
+    fields:
+      do:
+        type: list[string]
+        description: "Recommended practices when using this entry."
+      avoid:
+        type: list[string]
+        description: "Anti-patterns or common mistakes to avoid."
+
+  parameters:
+    required: false
+    type: list[object]
+    description: "Tunable parameters (for techniques, shaders, pipelines)."
+    item_fields:
+      name:
+        type: string
+        required: true
+      type:
+        type: enum
+        values: [int, float, bool, enum, color, string]
+        required: true
+      default:
+        type: any
+        required: false
+      range:
+        type: [min, max]
+        required: false
+        notes: "Only for int/float types."
+      options:
+        type: list[any]
+        required: false
+        notes: "Only for enum type."
+      description:
+        type: string
+        required: false
+
+  compat:
+    required: false
+    type: object
+    description: "Pipeline compatibility information."
+    fields:
+      works_with:
+        type: list[id]
+        description: "Entry IDs this entry pairs well with."
+      not_ideal_with:
+        type: list[id]
+        description: "Entry IDs that conflict with or undermine this entry."
+      requires:
+        type: list[id]
+        description: "Entry IDs that MUST be present for this to work correctly."
+
+  outputs:
+    required: false
+    type: list[object]
+    description: >
+      Reusable output fragments generated from this entry.
+      Used when composing pipelines, prompts, or shader code.
+    item_fields:
+      kind:
+        type: enum
+        values:
+          - prompt_fragment    # text to append to an AI image prompt
+          - shader_hint        # note for shader implementation
+          - code_snippet       # actual code fragment
+          - parameter_preset   # named preset for a parameter set
+          - url                # reference link
+      value:
+        type: string
+      language:
+        type: string
+        required: false
+        notes: "For code_snippet: glsl, js, python, hlsl, wgsl, etc."
+
+  # Pipeline-specific fields (only required when type == pipeline)
+  inputs:
+    required: false
+    type: list[object]
+    notes: "Only used in pipeline entries."
+    item_fields:
+      kind:
+        type: enum
+        values: [image, mesh, palette, text, number, voxel_grid]
+      description:
+        type: string
+
+  steps:
+    required: false
+    type: list[object]
+    notes: "Only used in pipeline entries. Steps are executed in order."
+    item_fields:
+      use:
+        type: id
+        description: "Reference to another entry (technique, shader, etc.)."
+      with:
+        type: map[param -> value]
+        required: false
+        description: "Parameter overrides for this step."
+      notes:
+        type: string
+        required: false
+
+  # Palette-specific fields (only used when type == palette)
+  colors:
+    required: false
+    type: list[object]
+    notes: "Only used in palette entries."
+    item_fields:
+      name:
+        type: string
+        required: false
+      hex:
+        type: string
+        pattern: "^#[0-9A-Fa-f]{6}$"
+        required: true
+      role:
+        type: string
+        required: false
+        description: "Semantic role: shadow, midtone, highlight, accent, etc."
+
+  # Provenance / metadata
+  provenance:
+    required: false
+    type: object
+    fields:
+      sources:
+        type: list[object]
+        item_fields:
+          kind:
+            type: enum
+            values: [note, url, book, game, artist, tool]
+          value:
+            type: string
+
+  version:
+    required: true
+    type: int
+    description: "Schema version. Increment on breaking field changes."
+    default: 1
+
+  created_at:
+    required: true
+    type: string
+    pattern: "YYYY-MM-DD"
+    description: "ISO 8601 date string for when the entry was first added."
+
+notes: |
+  Naming conventions:
+  - File name = slug portion of the ID, e.g. pxv.style.ditherpunk.v1 → ditherpunk.yaml
+  - One entry per file.
+  - Place the file in the matching category folder:
+      styles/       for type: style
+      techniques/   for type: technique
+      palettes/     for type: palette
+      pipelines/    for type: pipeline
+      motifs_subjects/  for type: motif
+      composition/  for type: composition
+      animation/    for type: animation
+      rendering_shader/ for type: shader
+      voxel_modeling/   for type: voxel
+      references/   for type: reference
+  - Do not use spaces or uppercase in slugs.
+  - IDs are stable. If you need to change a field incompatibly, bump v<n> and keep the old file.

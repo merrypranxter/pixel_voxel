@@ -1,0 +1,79 @@
+id: pxv.technique.voxel_sdf_raymarch.v1
+type: technique
+name: Voxel SDF Ray Marching
+aliases: [voxel raymarch, SDF voxel, voxel ray casting, voxel distance field]
+summary: "Ray marching through a signed-distance-field approximation of a voxel volume for smooth or stylized rendering."
+description: |
+  Instead of extracting a mesh, the voxel volume is treated as a scalar field and rendered
+  by marching rays through it in a fragment shader. Two main approaches:
+
+  1. DDA-based (exact): step the ray through the voxel grid cell by cell using the
+     Digital Differential Analyzer algorithm. Very fast, pixel-perfect voxel boundaries.
+     Used in Minecraft-style and classic voxel raycasters.
+
+  2. SDF-approximated: construct an SDF from the voxel grid (e.g., JFA or offline distance
+     transform), then ray march the SDF with adaptive step sizes. Allows smooth rounded
+     voxel edges, AO integration, and subsurface-like effects. More expensive but
+     visually richer.
+
+  The DDA approach is standard for real-time voxel engines (Teardown, Voxlap).
+  SDF approaches are common in shader art (Shadertoy demos, GLSL art).
+tags:
+  medium: [voxel]
+  voxel_tech: [raymarch, SDF, DDA]
+  lighting: [volumetric_fake, toon, ramp]
+  shader_ops: [quantize, fake_ao, edge_detect]
+  era: [contemporary]
+parameters:
+  - name: max_steps
+    type: int
+    default: 128
+    range: [32, 512]
+    description: "Maximum ray march steps per fragment."
+  - name: step_size
+    type: float
+    default: 0.5
+    range: [0.1, 2.0]
+    description: "Initial step size for SDF march (in voxel units)."
+  - name: use_dda
+    type: bool
+    default: true
+    description: "If true, use DDA grid traversal instead of SDF step march."
+  - name: ao_samples
+    type: int
+    default: 5
+    range: [1, 16]
+    description: "Steps for ambient occlusion approximation along surface normal."
+constraints:
+  do:
+    - "Clamp march to scene bounding box before entering loop to avoid wasted steps."
+    - "Compute normals analytically from voxel face orientation (not gradient) for hard edges."
+  avoid:
+    - "Running >256 steps per pixel in real-time targets — use DDA instead."
+compat:
+  works_with:
+    - pxv.style.isometric_voxel.v1
+    - pxv.shader.palette_map_nearest.v1
+    - pxv.pipeline.sdf_voxel_render.v1
+outputs:
+  - kind: shader_hint
+    value: |
+      // DDA voxel traversal sketch (GLSL)
+      vec3 step_dir = sign(rd);
+      vec3 tDelta = abs(1.0 / rd);
+      vec3 tMax = (step_dir * 0.5 + 0.5 - fract(ro)) / rd;
+      for (int i = 0; i < MAX_STEPS; i++) {
+        if (voxelAt(ivec3(floor(ro + rd * t))) != 0) { /* hit */ break; }
+        float tMin = min(min(tMax.x, tMax.y), tMax.z);
+        t = tMin + 1e-4;
+        tMax -= tMin; // advance
+      }
+    language: glsl
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: url
+      value: "https://www.shadertoy.com/view/4dfGzs"
+version: 1
+created_at: "2026-04-10"

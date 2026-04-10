@@ -1,0 +1,71 @@
+id: pxv.shader.ordered_dither.v1
+type: shader
+name: Ordered Dither (Screen-Space)
+aliases: [screen dither, Bayer screen dither, threshold dither]
+summary: "Full-screen ordered dithering pass that applies a Bayer or blue-noise threshold before palette mapping."
+description: |
+  This shader pass adds threshold noise to pixel luminance/color before palette mapping,
+  producing the characteristic dithered appearance where tones between two palette entries
+  are represented by patterns of both colors. Ordered dithering is deterministic and
+  coherent (unlike random noise), producing structured patterns.
+
+  Pipeline position: Apply AFTER pixel grid lock but BEFORE palette mapping.
+  The dither offset shifts the color signal so that the nearest-palette step snaps to
+  different palette entries for different pixels, simulating intermediate tones.
+
+  Two modes:
+    - Luminance mode: compute perceived brightness, add dither offset, then find nearest
+      palette entry by luminance.
+    - Per-channel mode: add dither offset independently to R, G, B before palette snap.
+      More colorful dithering, common in RGB ditherpunk.
+
+  Standard 4×4 Bayer matrix (16 thresholds, tiled across screen at pixel resolution).
+tags:
+  medium: [pixel, hybrid]
+  shader_ops: [dither, quantize, palette_map]
+  texture: [dithering]
+  era: [8bit, 16bit, modern_retro, contemporary]
+parameters:
+  - name: threshold_matrix
+    type: enum
+    options: [bayer_2x2, bayer_4x4, bayer_8x8, blue_noise_64]
+    default: bayer_4x4
+  - name: dither_mode
+    type: enum
+    options: [luminance, per_channel]
+    default: per_channel
+  - name: spread
+    type: float
+    default: 0.25
+    range: [0.0, 1.0]
+    description: "Amount of dither spread, as a fraction of the palette step size."
+constraints:
+  do:
+    - "Apply after pixel grid lock — dithering must operate in pixel-aligned space."
+    - "Match the dither spread to the palette step size for balanced results."
+  avoid:
+    - "Applying dithering after palette mapping — this has no effect."
+compat:
+  requires:
+    - pxv.shader.pixelate_grid_lock.v1
+  works_with:
+    - pxv.shader.palette_map_nearest.v1
+    - pxv.technique.bayer_4x4.v1
+    - pxv.technique.blue_noise_dither.v1
+    - pxv.style.ditherpunk.v1
+outputs:
+  - kind: code_snippet
+    value: |
+      // GLSL: apply Bayer dither offset before palette snap
+      int bx = int(fragCoord.x) % 4;
+      int by = int(fragCoord.y) % 4;
+      float bayerVal = bayer4x4[by * 4 + bx]; // preloaded array
+      vec3 dithered = color + (bayerVal - 0.5) * uSpread;
+      // then pass dithered to nearestPalette()
+    language: glsl
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+version: 1
+created_at: "2026-04-10"

@@ -1,0 +1,58 @@
+id: pxv.style.pixel_16bit.v1
+type: style
+name: 16-bit / SNES-Era Pixel Art
+aliases: [16bit, SNES-style, Genesis-style, super famicom]
+summary: "Rich, multi-layered pixel art with larger palettes, hue-shifted ramps, and Mode-7-style effects."
+description: |
+  16-bit era (SNES/Genesis/Neo Geo, ~1990–1996) pushed pixel art into fluid animation,
+  complex ramps, and larger sprites. SNES allowed 256 colors on-screen with rich palette
+  per sprite (16 colors × 8 sub-palettes). Ramp shading with hue-shifting became a defining
+  technique: shadows shift toward cool/purple, highlights shift toward warm yellow.
+  Dithering was common for gradients and translucency. Sprites grew to 32×32 and 64×64.
+
+  Key references: Street Fighter II, Chrono Trigger, Donkey Kong Country, Sonic 3.
+tags:
+  medium: [pixel]
+  era: [16bit]
+  lighting: [ramp]
+  palette: [extended, ramps]
+  texture: [dithering, none]
+  mood: [nostalgic, playful, tense]
+  subject: [character, environment, landscape]
+constraints:
+  do:
+    - "Use 4–8 shading steps per material with hue shifts in the ramp."
+    - "Shift shadows toward cooler hues (blue/purple); highlights toward warmer (yellow/cream)."
+    - "Allow dithering for transparency-like gradient blends between tiles."
+  avoid:
+    - "Pillow shading (shading that wraps all edges evenly regardless of light source)."
+    - "More than ~32 distinct colors on a single character sprite."
+parameters:
+  - name: ramp_steps
+    type: int
+    default: 6
+    range: [3, 12]
+    description: "Number of luminance steps in the primary material ramp."
+  - name: hue_shift_deg
+    type: float
+    default: 20.0
+    range: [0.0, 45.0]
+    description: "Degrees of hue rotation from shadow to highlight."
+compat:
+  works_with:
+    - pxv.technique.palette_ramp_hueshift.v1
+    - pxv.technique.bayer_4x4.v1
+    - pxv.palette.endesga_32.v1
+outputs:
+  - kind: prompt_fragment
+    value: "16-bit SNES-era pixel art, rich hue-shifted ramps, smooth animation, vibrant palette, detailed sprites"
+  - kind: shader_hint
+    value: "Shift hue -15deg in shadow band, +10deg in highlight band before quantizing to palette"
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: game
+      value: "Chrono Trigger (Square, 1995)"
+version: 1
+created_at: "2026-04-10"

@@ -1,0 +1,55 @@
+id: pxv.style.gameboy_dmg.v1
+type: style
+name: Game Boy DMG Monochrome
+aliases: [gameboy, DMG, GB, 4-shade green]
+summary: "4-shade monochrome pixel art in the distinctive greenish-gray LCD palette of the original Game Boy."
+description: |
+  The original Game Boy (DMG-001, 1989) displayed 4 shades of gray on a reflective
+  green-tinted LCD: off-white, light gray, dark gray, near-black. The screen was 160×144
+  pixels with no backlight. The visual language is extreme constraint: 4 shades only,
+  tiny sprites, and heavy use of tile reuse. Modern artists use this palette as a
+  deliberate limitation exercise or nostalgia aesthetic.
+
+  The 4 canonical DMG shades (LCD off, approximate RGB):
+    - #9bbc0f (lightest / "white")
+    - #8bac0f
+    - #306230 (dark)
+    - #0f380f (darkest / "black")
+tags:
+  medium: [pixel]
+  era: [8bit]
+  lighting: [flat, ramp]
+  palette: [gameboy, monochrome, limited]
+  texture: [dithering, none]
+  mood: [nostalgic, cozy]
+  subject: [character, environment, UI]
+constraints:
+  do:
+    - "Use exactly 4 palette values from the DMG green set."
+    - "Design for 160×144 canvas resolution or clean multiples."
+    - "Use tile reuse aggressively — keep unique tile count low."
+  avoid:
+    - "More than 4 distinct shades in any single piece."
+    - "Anti-aliased edges."
+parameters:
+  - name: pixel_scale
+    type: int
+    default: 3
+    range: [1, 8]
+    description: "Display scale multiplier (nearest-neighbor)."
+compat:
+  works_with:
+    - pxv.technique.bayer_4x4.v1
+    - pxv.palette.gameboy_dmg_4.v1
+    - pxv.shader.pixelate_grid_lock.v1
+outputs:
+  - kind: prompt_fragment
+    value: "Game Boy DMG 4-shade monochrome pixel art, green LCD palette, 160x144 resolution, retro handheld"
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: game
+      value: "Game Boy DMG-001, Nintendo 1989"
+version: 1
+created_at: "2026-04-10"

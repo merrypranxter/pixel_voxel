@@ -1,0 +1,45 @@
+id: pxv.style.blocky_voxel.v1
+type: style
+name: Blocky Minimal Voxel
+aliases: [chunky voxel, low-res voxel, minecraft-style, lego voxel]
+summary: "Intentionally coarse, low-resolution voxel art where the block unit is large and visible."
+description: |
+  This style embraces the block as the primary visual unit — nothing is hidden or smoothed.
+  Derived from Minecraft's aesthetic but pushed further into minimal art direction:
+  tight palettes, deliberate color placement per face, and large voxel footprints.
+  Works well when the chunk size is 16–32 voxels and visible from medium distance.
+  Character designs are chunky silhouettes that read at a glance.
+  Effective for real-time rendering because low poly counts.
+tags:
+  medium: [voxel]
+  camera: [ortho, perspective]
+  lighting: [flat, toon]
+  surface: [chunky, faceted]
+  palette: [limited]
+  mood: [playful, cozy]
+  subject: [character, environment, prop]
+  era: [contemporary, modern_retro]
+  voxel_tech: [naive_meshing, greedy_meshing]
+constraints:
+  do:
+    - "Let the block unit be visible — resist the urge to smooth or bevel excessively."
+    - "Color per voxel face (top/side/bottom) to imply directional light even in unlit renders."
+    - "Keep palette tight (8–16 colors) so that varied voxel colors still feel cohesive."
+  avoid:
+    - "Marching cubes or smooth surface extraction — defeats the blocky aesthetic."
+    - "Texture maps per voxel face (unless specifically the MC texture-pack approach)."
+compat:
+  works_with:
+    - pxv.technique.greedy_meshing.v1
+    - pxv.palette.apollo.v1
+outputs:
+  - kind: prompt_fragment
+    value: "chunky blocky voxel art, Minecraft-inspired, low-resolution voxels, minimal palette, clean silhouette"
+provenance:
+  sources:
+    - kind: note
+      value: "Curated by merrypranxter"
+    - kind: game
+      value: "Minecraft (Mojang, 2011)"
+version: 1
+created_at: "2026-04-10"
